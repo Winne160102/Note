@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -7,7 +8,9 @@
     <LinearLayout
         android:id="@+id/content_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@id/bottom_layout"
+        android:layout_alignParentTop="true"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -70,7 +73,7 @@
             android:id="@+id/shared_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/ic_shared_background"
+            android:background="@drawable/ic_white_background"
             android:orientation="horizontal"
             android:layout_marginTop="10dp"
             android:padding="16dp"
@@ -87,7 +90,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Được chia sẻ" />
+                android:text="  Được chia sẻ" />
 
             <TextView
                 android:id="@+id/shared_count"
@@ -100,7 +103,7 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="15dp"
             android:text="ICloud"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -109,11 +112,12 @@
             android:id="@+id/cloud_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/ic_shared_background"
+            android:background="@drawable/ic_white_background"
             android:orientation="horizontal"
             android:layout_marginTop="10dp"
             android:padding="16dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
             <ImageView
                 android:id="@+id/cloud_icon"
@@ -126,21 +130,27 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Ghi chú"
-                android:clickable="true"
-                android:focusable="true"/>
+                android:text="  Ghi chú" />
 
             <TextView
-                android:id="@+id/cloud_count"
+                android:id="@+id/folder_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="32 >" />
+                android:text="0"/>
+
+            <ImageView
+                android:id="@+id/toggle_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_arrow_right"
+                android:contentDescription="Toggle Folders" />
         </LinearLayout>
 
-        <View
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/folderRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" />
     </LinearLayout>
 
     <RelativeLayout
@@ -148,20 +158,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@drawable/ic_white_background">
 
         <ImageView
-            android:id="@+id/add_icon"
+            android:id="@+id/btnAddFolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/ic_add" />
+            android:src="@drawable/ic_add"
+            android:contentDescription="Add Folder" />
 
         <ImageView
             android:id="@+id/note_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:src="@drawable/ic_note" />
+            android:src="@drawable/ic_note"
+            android:contentDescription="Notes" />
     </RelativeLayout>
 </RelativeLayout>

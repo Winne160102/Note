@@ -23,8 +23,10 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
         val noteDao = NoteDatabase.getDatabase(application).noteDao()
         repository = NoteRepository(noteDao)
         allNotes = repository.allNotes
+    }
 
-        allNotes.observeForever { notes ->
+    fun observeNotesByFolder(folderId: Int) {
+        repository.getNotesByFolder(folderId).observeForever { notes ->
             _groupedNotes.postValue(groupNotesByDate(notes))
         }
     }

@@ -8,7 +8,8 @@ import androidx.room.PrimaryKey
 data class NoteEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val content: String,
-    val createdDate: Long = System.currentTimeMillis()
+    val createdDate: Long = System.currentTimeMillis(),
+    val folderId: Int? = null
 ) {
     @Ignore
     var isSelected: Boolean = false

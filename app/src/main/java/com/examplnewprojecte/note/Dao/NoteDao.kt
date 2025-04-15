@@ -27,4 +27,7 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE content LIKE '%' || :query || '%' ORDER BY createdDate DESC")
     fun searchNotes(query: String): LiveData<List<NoteEntity>>
+
+    @Query("SELECT * FROM notes WHERE folderId = :folderId ORDER BY createdDate DESC")
+    fun getNotesByFolder(folderId: Int): LiveData<List<NoteEntity>> // Thêm hàm mới
 }
