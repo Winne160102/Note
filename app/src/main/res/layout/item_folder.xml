@@ -14,4 +14,15 @@
         android:padding="16dp"
         android:text="Tên thư mục"
         android:textSize="16sp" />
+
+    <ImageView
+        android:id="@+id/moreOptions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"
+        android:contentDescription="Thêm tuỳ chọn"
+        android:padding="8dp"
+        android:src="@drawable/ic_more_vert" />
+
 </androidx.cardview.widget.CardView>

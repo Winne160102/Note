@@ -19,8 +19,7 @@ class AddFolderDialogFragment : DialogFragment() {
     private val folderViewModel: FolderViewModel by activityViewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = DialogAddFolderBinding.inflate(inflater, container, false)
         return binding.root
@@ -36,6 +35,7 @@ class AddFolderDialogFragment : DialogFragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 binding.folderNameInputLayout.error = null
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -49,12 +49,15 @@ class AddFolderDialogFragment : DialogFragment() {
                 folderName.isEmpty() -> {
                     binding.folderNameInputLayout.error = "Tên thư mục không được để trống"
                 }
+
                 folderName.length > 50 -> {
                     binding.folderNameInputLayout.error = "Tên thư mục quá dài (tối đa 50 ký tự)"
                 }
+
                 !folderName.matches(Regex("^[a-zA-Z0-9\\s]+$")) -> {
                     binding.folderNameInputLayout.error = "Chỉ dùng chữ cái, số và khoảng trắng"
                 }
+
                 else -> {
                     folderViewModel.parentFolders.value?.let { folders ->
                         if (folders.any { it.name.equals(folderName, ignoreCase = true) }) {
@@ -63,7 +66,9 @@ class AddFolderDialogFragment : DialogFragment() {
                         }
                     }
                     folderViewModel.insert(folderName)
-                    Toast.makeText(requireContext(), "Đã thêm thư mục $folderName", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(), "Đã thêm thư mục $folderName", Toast.LENGTH_SHORT
+                    ).show()
                     dismiss()
                 }
             }

@@ -24,7 +24,7 @@ interface FolderDao {
     fun getParentFolders(): LiveData<List<FolderEntity>>
 
     @Query("SELECT * FROM folders WHERE parentId = :parentId")
-    fun getSubFolders(parentId: Int): LiveData<List<FolderEntity>>
+    fun getSubFolders(parentId: Long): LiveData<List<FolderEntity>>
 
     @Query("SELECT * FROM folders WHERE id = :folderId LIMIT 1")
     fun getFolderById(folderId: Int): LiveData<FolderEntity?>

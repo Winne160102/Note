@@ -6,14 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.examplnewprojecte.note.adapters.GroupedNotesAdapter
+import com.examplnewprojecte.note.Entity.NoteEntity
+import com.examplnewprojecte.note.ViewModel.NoteViewModel
 import com.examplnewprojecte.note.databinding.FragmentNotesBinding
+import com.examplnewprojecte.note.dialog.ConfirmDeleteDialogFragment
 
 class NotesFragment : Fragment() {
     private var _binding: FragmentNotesBinding? = null
     private val binding get() = _binding!!
     private var folderId: Long = -1
+    private val noteViewModel: NoteViewModel by activityViewModels()
     private var folderName: String = "Ghi chú" // Mặc định nếu không có tên
     private val TAG = "NotesFragment"
+    private lateinit var notesAdapter: GroupedNotesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,8 +33,7 @@ class NotesFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentNotesBinding.inflate(inflater, container, false)
         return binding.root
@@ -39,7 +46,82 @@ class NotesFragment : Fragment() {
         binding.titleText.text = folderName
         Log.d(TAG, "onViewCreated: title set to $folderName")
 
-        // TODO: Thêm logic hiển thị ghi chú theo folderId (nếu cần)
+        // Khởi tạo GroupedNotesAdapter
+        notesAdapter = GroupedNotesAdapter(
+            emptyMap(),
+            onItemClick = { note ->
+                // Xử lý khi click vào ghi chú, ví dụ: mở dialog chỉnh sửa
+                val dialog = EditNoteDialogFragment.newInstance(note, folderId) { updatedNote ->
+                    // Có thể cập nhật UI tại đây nếu cần
+                }
+                dialog.show(parentFragmentManager, "EditNoteDialog")
+            },
+            onSelectionModeChanged = { isSelectionMode ->
+                // Hiển thị/ẩn nút xóa hoặc hủy
+                if (isSelectionMode) {
+                    binding.deleteButton.visibility = View.VISIBLE
+                    binding.cancelButton.visibility = View.VISIBLE
+                } else {
+                    binding.deleteButton.visibility = View.INVISIBLE
+                    binding.cancelButton.visibility = View.INVISIBLE
+                }
+            }
+        )
+
+        // Thiết lập RecyclerView
+        binding.notesRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = notesAdapter
+        }
+
+        // Quan sát danh sách ghi chú từ ViewModel
+        noteViewModel.getNotesByFolder(folderId.toInt()).observe(viewLifecycleOwner) { notes ->
+            if (notes.isNullOrEmpty()) {
+                binding.notesRecyclerView.visibility = View.GONE
+                binding.emptyNotesText.visibility = View.VISIBLE
+            } else {
+                binding.notesRecyclerView.visibility = View.VISIBLE
+                binding.emptyNotesText.visibility = View.GONE
+                // Nhóm ghi chú theo ngày
+                val groupedNotes = noteViewModel.groupNotesByDate(notes)
+                if (groupedNotes.isEmpty()) {
+                    binding.notesRecyclerView.visibility = View.GONE
+                    binding.emptyNotesText.visibility = View.VISIBLE
+                } else {
+                    notesAdapter.updateGroupedNotes(groupedNotes)
+                }
+            }
+        }
+
+        // Xử lý khi nhấn nút Back
+        binding.backButton.setOnClickListener {
+            parentFragmentManager.popBackStack() // Quay lại trang trước
+        }
+
+        // Xử lý nút thêm ghi chú
+        binding.addNoteButton.setOnClickListener {
+            val dialog = EditNoteDialogFragment.newInstance(null, folderId) { newNote ->
+                // Không cần làm gì ở đây vì LiveData đã tự động cập nhật
+            }
+            dialog.show(parentFragmentManager, "EditNoteDialog")
+        }
+
+        // Xử lý nút xóa (khi ở chế độ chọn)
+        binding.deleteButton.setOnClickListener {
+            val selectedNotes = notesAdapter.getSelectedNotes() // Chỉ lấy danh sách, không xóa
+            if (selectedNotes.isNotEmpty()) {
+                val message = "Bạn có chắc chắn muốn xóa ${selectedNotes.size} ghi chú?"
+                showDeleteConfirmation(message, {
+                    noteViewModel.deleteNotes(selectedNotes) // Xóa trong cơ sở dữ liệu
+                    notesAdapter.deleteSelectedNotes() // Xóa khỏi UI
+                })
+            }
+        }
+
+        // Xử lý nút hủy (thoát chế độ chọn)
+        binding.cancelButton.setOnClickListener {
+            notesAdapter.exitSelectionMode()
+        }
     }
 
     override fun onDestroyView() {
@@ -59,5 +141,10 @@ class NotesFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun showDeleteConfirmation(message: String, onConfirm: () -> Unit) {
+        val dialog = ConfirmDeleteDialogFragment(message, onConfirm)
+        dialog.show(parentFragmentManager, "ConfirmDeleteDialog")
     }
 }

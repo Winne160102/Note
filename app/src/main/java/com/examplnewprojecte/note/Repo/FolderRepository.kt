@@ -19,7 +19,7 @@ class FolderRepository(private val folderDao: FolderDao) {
         folderDao.delete(folder)
     }
 
-    fun getSubFolders(parentId: Int): LiveData<List<FolderEntity>> {
+    fun getSubFolders(parentId: Long): LiveData<List<FolderEntity>> {
         return folderDao.getSubFolders(parentId)
     }
 

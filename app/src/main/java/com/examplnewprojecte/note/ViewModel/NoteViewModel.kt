@@ -25,10 +25,9 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
         allNotes = repository.allNotes
     }
 
-    fun observeNotesByFolder(folderId: Int) {
-        repository.getNotesByFolder(folderId).observeForever { notes ->
-            _groupedNotes.postValue(groupNotesByDate(notes))
-        }
+    // Trả về LiveData để Fragment có thể quan sát
+    fun getNotesByFolder(folderId: Int): LiveData<List<NoteEntity>> {
+        return repository.getNotesByFolder(folderId)
     }
 
     fun insert(note: NoteEntity) = viewModelScope.launch(Dispatchers.IO) {
@@ -47,8 +46,22 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
         repository.deleteNotes(notes)
     }
 
-    private fun groupNotesByDate(notes: List<NoteEntity>): Map<String, List<NoteEntity>> {
-        return notes.filter { it.createdDate > 0 }
-            .groupBy { DateUtils.getRelativeDateGroup(it.createdDate) }
+    fun groupNotesByDate(notes: List<NoteEntity>): Map<String, List<NoteEntity>> {
+        if (notes.isEmpty()) return emptyMap()
+
+        return try {
+            notes.filter { it.createdDate > 0 }
+                .groupBy { note ->
+                    try {
+                        DateUtils.getRelativeDateGroup(note.createdDate) ?: "Không xác định"
+                    } catch (e: Exception) {
+                        println("🟢 ERROR: groupNotesByDate failed for note ${note.id}: ${e.message}")
+                        "Không xác định"
+                    }
+                }
+        } catch (e: Exception) {
+            println("🟢 ERROR: groupNotesByDate failed: ${e.message}")
+            emptyMap()
+        }
     }
 }

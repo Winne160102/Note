@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material3.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +14,7 @@ import com.examplnewprojecte.note.Entity.FolderEntity
 import com.examplnewprojecte.note.R
 import com.examplnewprojecte.note.ViewModel.FolderViewModel
 import com.examplnewprojecte.note.databinding.FragmentHomeBinding
+import com.examplnewprojecte.note.dialog.ConfirmDeleteDialogFragment
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
@@ -23,14 +25,11 @@ class HomeFragment : Fragment() {
     private val TOGGLE_DEBOUNCE_MS = 300L
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         try {
             binding = FragmentHomeBinding.inflate(inflater, container, false)
-            Log.d(TAG, "onCreateView: Binding inflated successfully")
         } catch (e: Exception) {
-            Log.e(TAG, "onCreateView: Failed to inflate binding", e)
             throw e
         }
         return binding.root
@@ -42,55 +41,50 @@ class HomeFragment : Fragment() {
         // Đảm bảo cloud_layout hiển thị
         binding.cloudLayout.visibility = View.VISIBLE
         binding.searchLayout.visibility = View.VISIBLE
-        Log.d(TAG, "onViewCreated: cloud_layout isShown=${binding.cloudLayout.isShown}, search_layout isShown=${binding.searchLayout.isShown}")
 
         // Khởi tạo FolderAdapter
-        folderAdapter = FolderAdapter(emptyList()) { folder ->
-            Log.d(TAG, "Folder clicked: ${folder.name}, id=${folder.id}")
+        folderAdapter = FolderAdapter(emptyList(), onFolderClick = { folder ->
             val fragment = NotesFragment.newInstance(folder.id, folder.name)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
-        }
+            parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
+                .addToBackStack(null).commit()
+        }, onEditClick = { folder ->
+            val dialog = EditFolderDialogFragment(folder) { updatedFolder ->
+                // ViewModel đã xử lý update
+            }
+            dialog.show(parentFragmentManager, "EditFolderDialog")
+        }, onDeleteClick = { folder ->
+            showDeleteConfirmation(folder)
+        })
 
         binding.folderRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = folderAdapter
-            visibility = View.GONE // Ban đầu ẩn
-            Log.d(TAG, "folderRecyclerView initialized, visibility=GONE")
+            visibility = View.GONE
         }
 
         // Nhấn vào cloud_layout để toggle
         binding.cloudLayout.setOnClickListener {
             val currentTime = System.currentTimeMillis()
-            if (currentTime - lastToggleTime > TOGGLE_DEBOUNCE_MS) {
-                Log.d(TAG, "cloud_layout clicked, toggling")
-                lastToggleTime = currentTime
-                toggleFolderListVisibility()
-            } else {
-                Log.d(TAG, "cloud_layout click ignored (debounce)")
-            }
+            currentTime - lastToggleTime > TOGGLE_DEBOUNCE_MS
+            Log.d(TAG, "cloud_layout clicked, toggling")
+            lastToggleTime = currentTime
+            toggleFolderListVisibility()
+
         }
 
         binding.btnAddFolder.setOnClickListener {
-            Log.d(TAG, "btnAddFolder clicked")
             showAddFolderDialog()
         }
 
         // Quan sát danh sách thư mục
         folderViewModel.parentFolders.observe(viewLifecycleOwner) { folders ->
-            Log.d(TAG, "parentFolders updated: ${folders?.size ?: 0} folders, data=$folders")
             folderAdapter.updateFolders(folders ?: emptyList())
             binding.folderCount.text = (folders?.size ?: 0).toString()
             binding.toggleIcon.setImageResource(
-                if (binding.folderRecyclerView.visibility == View.VISIBLE)
-                    R.drawable.ic_arrow_down
-                else
-                    R.drawable.ic_arrow_right
+                if (binding.folderRecyclerView.visibility == View.VISIBLE) R.drawable.ic_arrow_down
+                else R.drawable.ic_arrow_right
             )
             binding.cloudLayout.visibility = View.VISIBLE
-            Log.d(TAG, "cloud_layout set to VISIBLE after folders update, folder_count=${binding.folderCount.text}")
         }
     }
 
@@ -98,13 +92,10 @@ class HomeFragment : Fragment() {
         binding.folderRecyclerView.visibility =
             if (binding.folderRecyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         binding.toggleIcon.setImageResource(
-            if (binding.folderRecyclerView.visibility == View.VISIBLE)
-                R.drawable.ic_arrow_down
-            else
-                R.drawable.ic_arrow_right
+            if (binding.folderRecyclerView.visibility == View.VISIBLE) R.drawable.ic_arrow_down
+            else R.drawable.ic_arrow_right
         )
         binding.cloudLayout.visibility = View.VISIBLE
-        Log.d(TAG, "toggleFolderListVisibility: folderRecyclerView visibility=${binding.folderRecyclerView.visibility}, cloud_layout isShown=${binding.cloudLayout.isShown}, search_layout isShown=${binding.searchLayout.isShown}")
     }
 
     private fun showAddFolderDialog() {
@@ -114,6 +105,14 @@ class HomeFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart: cloud_layout isShown=${binding.cloudLayout.isShown}, search_layout isShown=${binding.searchLayout.isShown}, content_layout height=${binding.contentLayout.height}")
+    }
+
+    // Trong HomeFragment
+    private fun showDeleteConfirmation(folder: FolderEntity) {
+        val message = "Bạn có chắc chắn muốn xóa thư mục '${folder.name}'?"
+        val dialog = ConfirmDeleteDialogFragment(message) {
+            folderViewModel.delete(folder)
+        }
+        dialog.show(parentFragmentManager, "ConfirmDeleteDialog")
     }
 }

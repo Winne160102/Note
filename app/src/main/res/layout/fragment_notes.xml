@@ -56,6 +56,16 @@
             android:hint="Tìm kiếm" />
     </LinearLayout>
 
+    <!-- Text hiển thị khi không có ghi chú -->
+    <TextView
+        android:id="@+id/emptyNotesText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Không có ghi chú nào"
+        android:gravity="center"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notesRecyclerView"
@@ -76,7 +86,7 @@
 
         <!-- Nút Thêm -->
         <ImageButton
-            android:id="@+id/createNoteButton"
+            android:id="@+id/addNoteButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

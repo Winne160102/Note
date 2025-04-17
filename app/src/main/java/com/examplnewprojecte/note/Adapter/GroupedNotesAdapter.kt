@@ -89,18 +89,21 @@ class GroupedNotesAdapter(
         onSelectionModeChanged(false) // Ẩn nút Xóa/Hủy
     }
 
-    fun deleteSelectedNotes(): List<NoteEntity> {
-        val deletedNotes = selectedNotes.toList()
-        selectedNotes.clear()
+    // Phương thức mới: Lấy danh sách ghi chú đã chọn mà không xóa
+    fun getSelectedNotes(): List<NoteEntity> {
+        return selectedNotes.toList()
+    }
 
+    // Phương thức đã sửa: Chỉ xóa sau khi xác nhận
+    fun deleteSelectedNotes() {
         groupedNotes = groupedNotes.mapValues { (_, notes) ->
-            notes.filterNot { deletedNotes.contains(it) }
+            notes.filterNot { it in selectedNotes }
         }.filterValues { it.isNotEmpty() }
 
         flatList = generateFlatList()
+        selectedNotes.clear()
         notifyDataSetChanged()
         exitSelectionMode()
-        return deletedNotes
     }
 
     private fun generateFlatList(): List<Any> {
@@ -115,7 +118,7 @@ class GroupedNotesAdapter(
     }
 
     inner class NoteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val content = view.findViewById<TextView>(R.id.noteContent)
+        val content = view.findViewById<TextView>(R.id.noteContent)
         val checkBox: CheckBox = view.findViewById(R.id.noteCheckBox)
 
         fun bind(note: NoteEntity) {

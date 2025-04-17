@@ -22,4 +22,12 @@ class FolderViewModel(application: Application) : AndroidViewModel(application) 
     fun insert(name: String) = viewModelScope.launch {
         repository.insert(FolderEntity(name = name))
     }
+
+    fun update(folder: FolderEntity) = viewModelScope.launch {
+        repository.update(folder)
+    }
+
+    fun delete(folder: FolderEntity) = viewModelScope.launch {
+        repository.delete(folder)
+    }
 }
