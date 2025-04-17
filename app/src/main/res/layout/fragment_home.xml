@@ -153,28 +153,47 @@
             android:layout_marginTop="10dp" />
     </LinearLayout>
 
-    <RelativeLayout
+    <!-- Layout chứa các nút -->
+    <LinearLayout
         android:id="@+id/bottom_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:padding="16dp"
-        android:background="@drawable/ic_white_background">
+        android:background="@drawable/ic_white_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="12dp">
 
-        <ImageView
+        <!-- Nút Thêm Thư mục -->
+        <ImageButton
             android:id="@+id/btnAddFolder"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:src="@drawable/ic_add"
-            android:contentDescription="Add Folder" />
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Add Folder"
+            android:padding="8dp"
+            android:src="@drawable/ic_add" />
 
-        <ImageView
-            android:id="@+id/note_icon"
-            android:layout_width="wrap_content"
+        <!-- Nút Placeholder (ẩn) -->
+        <ImageButton
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/ic_note"
-            android:contentDescription="Notes" />
-    </RelativeLayout>
+            android:layout_marginHorizontal="4dp"
+            android:layout_weight="1"
+            android:visibility="invisible" />
+
+        <!-- Nút Chuyển sang Ghi chú -->
+        <ImageButton
+            android:id="@+id/note_icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Notes"
+            android:padding="8dp"
+            android:src="@drawable/ic_note" />
+    </LinearLayout>
 </RelativeLayout>

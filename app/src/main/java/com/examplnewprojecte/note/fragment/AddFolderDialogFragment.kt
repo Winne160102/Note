@@ -54,10 +54,6 @@ class AddFolderDialogFragment : DialogFragment() {
                     binding.folderNameInputLayout.error = "Tên thư mục quá dài (tối đa 50 ký tự)"
                 }
 
-                !folderName.matches(Regex("^[a-zA-Z0-9\\s]+$")) -> {
-                    binding.folderNameInputLayout.error = "Chỉ dùng chữ cái, số và khoảng trắng"
-                }
-
                 else -> {
                     folderViewModel.parentFolders.value?.let { folders ->
                         if (folders.any { it.name.equals(folderName, ignoreCase = true) }) {

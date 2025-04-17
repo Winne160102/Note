@@ -19,7 +19,7 @@ class NotesFragment : Fragment() {
     private val binding get() = _binding!!
     private var folderId: Long = -1
     private val noteViewModel: NoteViewModel by activityViewModels()
-    private var folderName: String = "Ghi chú" // Mặc định nếu không có tên
+    private var folderName: String = "Ghi chú"
     private val TAG = "NotesFragment"
     private lateinit var notesAdapter: GroupedNotesAdapter
 
@@ -42,39 +42,29 @@ class NotesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Cập nhật tiêu đề
         binding.titleText.text = folderName
         Log.d(TAG, "onViewCreated: title set to $folderName")
 
-        // Khởi tạo GroupedNotesAdapter
         notesAdapter = GroupedNotesAdapter(
             emptyMap(),
-            onItemClick = { note ->
-                // Xử lý khi click vào ghi chú, ví dụ: mở dialog chỉnh sửa
-                val dialog = EditNoteDialogFragment.newInstance(note, folderId) { updatedNote ->
-                    // Có thể cập nhật UI tại đây nếu cần
-                }
-                dialog.show(parentFragmentManager, "EditNoteDialog")
-            },
-            onSelectionModeChanged = { isSelectionMode ->
-                // Hiển thị/ẩn nút xóa hoặc hủy
-                if (isSelectionMode) {
+            onItemClick = { note -> /* Không cần làm gì, đã xử lý trong adapter */ },
+            onDeleteModeChanged = { isDeleteMode ->
+                if (isDeleteMode) {
                     binding.deleteButton.visibility = View.VISIBLE
                     binding.cancelButton.visibility = View.VISIBLE
                 } else {
                     binding.deleteButton.visibility = View.INVISIBLE
                     binding.cancelButton.visibility = View.INVISIBLE
                 }
-            }
+            },
+            noteViewModel = noteViewModel
         )
 
-        // Thiết lập RecyclerView
         binding.notesRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = notesAdapter
         }
 
-        // Quan sát danh sách ghi chú từ ViewModel
         noteViewModel.getNotesByFolder(folderId.toInt()).observe(viewLifecycleOwner) { notes ->
             if (notes.isNullOrEmpty()) {
                 binding.notesRecyclerView.visibility = View.GONE
@@ -82,7 +72,6 @@ class NotesFragment : Fragment() {
             } else {
                 binding.notesRecyclerView.visibility = View.VISIBLE
                 binding.emptyNotesText.visibility = View.GONE
-                // Nhóm ghi chú theo ngày
                 val groupedNotes = noteViewModel.groupNotesByDate(notes)
                 if (groupedNotes.isEmpty()) {
                     binding.notesRecyclerView.visibility = View.GONE
@@ -93,34 +82,28 @@ class NotesFragment : Fragment() {
             }
         }
 
-        // Xử lý khi nhấn nút Back
         binding.backButton.setOnClickListener {
-            parentFragmentManager.popBackStack() // Quay lại trang trước
+            parentFragmentManager.popBackStack()
         }
 
-        // Xử lý nút thêm ghi chú
         binding.addNoteButton.setOnClickListener {
-            val dialog = EditNoteDialogFragment.newInstance(null, folderId) { newNote ->
-                // Không cần làm gì ở đây vì LiveData đã tự động cập nhật
-            }
-            dialog.show(parentFragmentManager, "EditNoteDialog")
+            val newNote = NoteEntity(content = "", folderId = folderId.toInt(), createdDate = System.currentTimeMillis())
+            noteViewModel.insert(newNote)
         }
 
-        // Xử lý nút xóa (khi ở chế độ chọn)
         binding.deleteButton.setOnClickListener {
-            val selectedNotes = notesAdapter.getSelectedNotes() // Chỉ lấy danh sách, không xóa
-            if (selectedNotes.isNotEmpty()) {
-                val message = "Bạn có chắc chắn muốn xóa ${selectedNotes.size} ghi chú?"
+            val notesToDelete = notesAdapter.getNotesToDelete()
+            if (notesToDelete.isNotEmpty()) {
+                val message = "Bạn có chắc chắn muốn xóa ${notesToDelete.size} ghi chú?"
                 showDeleteConfirmation(message, {
-                    noteViewModel.deleteNotes(selectedNotes) // Xóa trong cơ sở dữ liệu
-                    notesAdapter.deleteSelectedNotes() // Xóa khỏi UI
+                    noteViewModel.deleteNotes(notesToDelete)
+                    notesAdapter.deleteSelectedNotes()
                 })
             }
         }
 
-        // Xử lý nút hủy (thoát chế độ chọn)
         binding.cancelButton.setOnClickListener {
-            notesAdapter.exitSelectionMode()
+            notesAdapter.exitDeleteMode()
         }
     }
 

@@ -41,8 +41,6 @@ class EditFolderDialogFragment(
             when {
                 newName.isEmpty() -> binding.folderNameInputLayout.error = "Tên không được để trống"
                 newName.length > 50 -> binding.folderNameInputLayout.error = "Tên quá dài"
-                !newName.matches(Regex("^[a-zA-Z0-9\\s]+$")) -> binding.folderNameInputLayout.error =
-                    "Tên chỉ chứa chữ cái, số, khoảng trắng"
 
                 else -> {
                     val updatedFolder = folder.copy(name = newName)

@@ -5,18 +5,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.examplnewprojecte.note.Entity.NoteEntity
 import com.examplnewprojecte.note.R
+import com.examplnewprojecte.note.ViewModel.NoteViewModel
+import com.examplnewprojecte.note.fragment.NoteDetailFragment
 
 class GroupedNotesAdapter(
     private var groupedNotes: Map<String, List<NoteEntity>>,
     private val onItemClick: (NoteEntity) -> Unit,
-    private val onSelectionModeChanged: (Boolean) -> Unit
+    private val onDeleteModeChanged: (Boolean) -> Unit,
+    private val noteViewModel: NoteViewModel
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var isSelectionMode = false
-    private val selectedNotes = mutableSetOf<NoteEntity>()
+    private var isDeleteMode = false
+    private val notesToDelete = mutableSetOf<NoteEntity>()
     private var flatList: List<Any> = generateFlatList()
 
     override fun getItemViewType(position: Int): Int {
@@ -40,18 +44,28 @@ class GroupedNotesAdapter(
             val noteHolder = holder as NoteViewHolder
 
             noteHolder.bind(note)
-            noteHolder.checkBox.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
-            noteHolder.checkBox.isChecked = selectedNotes.contains(note)
-
             noteHolder.itemView.setOnClickListener {
-                if (isSelectionMode) toggleSelection(note, position)
-                else onItemClick(note)
+                if (!isDeleteMode) {
+                    val fragmentManager = (holder.itemView.context as FragmentActivity).supportFragmentManager
+                    val noteDetailFragment = NoteDetailFragment.newInstance(note)
+                    fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, noteDetailFragment)
+                        .addToBackStack(null)
+                        .commit()
+                } else {
+                    toggleDelete(note, position)
+                }
             }
 
             noteHolder.itemView.setOnLongClickListener {
-                enterSelectionMode(note)
+                if (!isDeleteMode) {
+                    enterDeleteMode(note)
+                }
                 true
             }
+
+            noteHolder.checkBox.visibility = if (isDeleteMode) View.VISIBLE else View.GONE
+            noteHolder.checkBox.isChecked = notesToDelete.contains(note)
         }
     }
 
@@ -63,47 +77,46 @@ class GroupedNotesAdapter(
         notifyDataSetChanged()
     }
 
-    private fun enterSelectionMode(note: NoteEntity) {
-        if (!isSelectionMode) {
-            isSelectionMode = true
-            selectedNotes.clear()
-            selectedNotes.add(note)
-            notifyDataSetChanged()
-            onSelectionModeChanged(true) // Hiển thị nút Xóa/Hủy
-        }
+    private fun enterDeleteMode(note: NoteEntity) {
+        isDeleteMode = true
+        notesToDelete.clear()
+        notesToDelete.add(note)
+        notifyDataSetChanged()
+        onDeleteModeChanged(true)
     }
 
-    private fun toggleSelection(note: NoteEntity, position: Int) {
-        if (selectedNotes.contains(note)) {
-            selectedNotes.remove(note)
+    private fun toggleDelete(note: NoteEntity, position: Int) {
+        if (notesToDelete.contains(note)) {
+            notesToDelete.remove(note)
         } else {
-            selectedNotes.add(note)
+            notesToDelete.add(note)
         }
         notifyItemChanged(position)
+        if (notesToDelete.isEmpty()) {
+            exitDeleteMode()
+        }
     }
 
-    fun exitSelectionMode() {
-        isSelectionMode = false
-        selectedNotes.clear()
+    fun exitDeleteMode() {
+        isDeleteMode = false
+        notesToDelete.clear()
         notifyDataSetChanged()
-        onSelectionModeChanged(false) // Ẩn nút Xóa/Hủy
+        onDeleteModeChanged(false)
     }
 
-    // Phương thức mới: Lấy danh sách ghi chú đã chọn mà không xóa
-    fun getSelectedNotes(): List<NoteEntity> {
-        return selectedNotes.toList()
-    }
-
-    // Phương thức đã sửa: Chỉ xóa sau khi xác nhận
     fun deleteSelectedNotes() {
         groupedNotes = groupedNotes.mapValues { (_, notes) ->
-            notes.filterNot { it in selectedNotes }
+            notes.filterNot { it in notesToDelete }
         }.filterValues { it.isNotEmpty() }
 
         flatList = generateFlatList()
-        selectedNotes.clear()
+        notesToDelete.clear()
         notifyDataSetChanged()
-        exitSelectionMode()
+        exitDeleteMode()
+    }
+
+    fun getNotesToDelete(): List<NoteEntity> {
+        return notesToDelete.toList()
     }
 
     private fun generateFlatList(): List<Any> {
@@ -118,11 +131,11 @@ class GroupedNotesAdapter(
     }
 
     inner class NoteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val content = view.findViewById<TextView>(R.id.noteContent)
+        val content: TextView = view.findViewById(R.id.noteText)
         val checkBox: CheckBox = view.findViewById(R.id.noteCheckBox)
 
         fun bind(note: NoteEntity) {
-            content.text = note.content
+            content.text = if (note.title.isNotEmpty()) note.title else "Không có tiêu đề"
         }
     }
 }
