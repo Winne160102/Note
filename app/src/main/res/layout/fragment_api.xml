@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        android:background="@drawable/title_background"
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_back"
+            android:contentDescription="Back"
+            android:padding="4dp"/>
+
+        <TextView
+            android:id="@+id/apiTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:text="API"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#333333"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/callApiButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:text="Gọi API"
+        android:background="@drawable/search_background"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp"
+        android:textSize="16sp"
+        android:textColor="#333333"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/errorText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/red"
+        android:textSize="16sp"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pokemonRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        android:visibility="gone"/>
+
+    <RelativeLayout
+        android:id="@+id/resultLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="@drawable/ic_white_background"
+        android:layout_marginTop="16dp"
+        android:elevation="4dp"
+        android:visibility="gone">
+
+        <!-- Nút Cancel -->
+        <ImageButton
+            android:id="@+id/cancelButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Hủy"
+            android:src="@drawable/ic_cancel"
+            android:padding="4dp"/>
+
+        <!-- Sprite Pokémon -->
+        <ImageView
+            android:id="@+id/pokemonSprite"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Pokemon Sprite"/>
+
+        <!-- TableLayout cho thông số -->
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/pokemonSprite"
+            android:stretchColumns="1"
+            android:padding="8dp">
+
+            <!-- Hàng: Tên -->
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tên:"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#555555"
+                    android:paddingEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/pokemonName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="#333333"/>
+            </TableRow>
+
+            <!-- Hàng: Khả năng -->
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Khả năng:"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#555555"
+                    android:paddingEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/abilitiesText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="#333333"/>
+            </TableRow>
+
+            <!-- Hàng: Chỉ số -->
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chỉ số:"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#555555"
+                    android:paddingEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/statsText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="#333333"/>
+            </TableRow>
+
+        </TableLayout>
+    </RelativeLayout>
+</LinearLayout>

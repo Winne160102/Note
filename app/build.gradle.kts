@@ -87,4 +87,16 @@ dependencies {
 
     // Material Design
     implementation("com.google.android.material:material:1.10.0")
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Picasso
+    implementation("com.squareup.picasso:picasso:2.8")
+
+    //Navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.2")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.2")
+
 }
