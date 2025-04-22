@@ -29,14 +29,6 @@
                 android:text="Thư mục"
                 android:textSize="48sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/edit_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:text="Sửa"
-                android:textSize="20sp" />
         </RelativeLayout>
 
         <LinearLayout
@@ -92,11 +84,6 @@
                 android:layout_weight="1"
                 android:text="  Được chia sẻ" />
 
-            <TextView
-                android:id="@+id/shared_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1 >" />
         </LinearLayout>
 
         <TextView

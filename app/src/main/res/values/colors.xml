@@ -12,4 +12,5 @@
     <color name="button_primary">#6200EE</color>
     <color name="background_light">#F5F5F5</color>
     <color name="transparent">#00000000</color>
+    <color name="red">#FF0000</color>
 </resources>
